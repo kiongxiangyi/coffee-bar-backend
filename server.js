@@ -1,5 +1,6 @@
+require("dotenv").config();
 const express = require("express");
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 const cors = require("cors");
 
 const app = express();
@@ -14,7 +15,8 @@ app.use("/drinks", require("./routes/products"));
 // Orders route
 app.use("/orders", require("./routes/orders"));
 // Sent Email
-// app.use("/send", require("./routes/emails"));
+app.use("/send", require("./routes/emails"));
+
 // Error middleware
 app.use((err, req, res, next) => {
   console.log(err.stack);

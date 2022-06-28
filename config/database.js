@@ -1,8 +1,14 @@
+//require("dotenv").config();
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize("GTMS_KaffeeBar", "sa", "freebsd", {
-  host: "localhost",
-  dialect: "mssql",
-});
+const sequelize = new Sequelize(
+  process.env.DB,
+  process.env.USER,
+  process.env.PASSWORD,
+  {
+    host: process.env.HOST,
+    dialect: process.env.DIALECT,
+  }
+);
 
 sequelize
   .authenticate()
