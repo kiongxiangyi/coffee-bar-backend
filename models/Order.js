@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../config/database");
 
+//define date format to match DB date format
 Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
   date = this._applyTimezone(date, options);
   return date.format("YYYY-MM-DD HH:mm:ss.SSS");
@@ -26,7 +27,7 @@ const Order = sequelize.define(
     Bemerkung: { type: Sequelize.STRING },
     AngelegtAm: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     AngelegtVon: { type: Sequelize.STRING },
-    ErledigtAm: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+    ErledigtAm: { type: Sequelize.DATE },
     ErledigtVon: { type: Sequelize.STRING },
     VerschleissID: { type: Sequelize.INTEGER },
     Vermessen: { type: Sequelize.BOOLEAN },
@@ -35,7 +36,6 @@ const Order = sequelize.define(
   },
   {
     tableName: "tblStuecklistenWechsel",
-    id: false,
     createdAt: false,
     updatedAt: false,
   }

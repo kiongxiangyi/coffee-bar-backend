@@ -9,17 +9,17 @@ app.use(express.json());
 
 app.use(cors());
 
-app.get("/", (req, res) => res.send("INDEX"));
-
 // Drinks route
 app.use("/drinks", require("./routes/products"));
-
-// Users route
-app.use("/users", require("./routes/users"));
-
 // Orders route
 app.use("/orders", require("./routes/orders"));
-
+// Sent Email
+// app.use("/send", require("./routes/emails"));
+// Error middleware
+app.use((err, req, res, next) => {
+  console.log(err.stack);
+  return res.status(500).json({ error: err.message });
+});
 // Error
 app.use("*", (req, res) => res.sendStatus(404)); // the server could not find what was requested
 

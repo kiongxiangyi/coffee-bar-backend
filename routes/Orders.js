@@ -1,44 +1,103 @@
 const { request } = require("express");
 const express = require("express");
-const { DateTime, DateTime2 } = require("mssql");
-const { DATE } = require("sequelize");
 const router = express.Router();
 const Order = require("../models/Order");
 const User = require("../models/User");
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const user = await User.findOne({
-      where: { Benutzer: req.body.user },
+    const results = await Order.findAll({
+      attributes: [
+        "ID",
+        "Stueckliste",
+        "Menge",
+        "Wechselstatus",
+        "AngelegtVon",
+      ],
     });
-    if (!user) throw Error("User does not exist");
-    const { ID } = await Order.findOne({
-      limit: 1,
-      order: [["ID", "DESC"]],
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/", async (req, res, next) => {
+  try {
+    const {
+      body: { user, product, qty },
+    } = req;
+    if (!user) return next(new Error("Bitte Namen eingeben")); //check user input
+    if (!product) return next(new Error("Bitte Kaffee auswählen")); //check coffee selection input
+    if (!qty) return next(new Error("Bitte Mengen eingeben")); //check quantity input
+    //check if user is in database registered
+    const foundUser = await User.findOne({
+      where: { Benutzer: user },
     });
-    const order = await Order.create({
-      ID: ID + 1,
-      Stueckliste: req.body.stueckliste,
-      Menge: req.body.qty,
-      Wechselstatus: req.body.status,
-      Bemerkung: req.body.name,
-      Stuecklistenvariante: "test",
-      Bauteil: "null",
-      Bauteilvariante: "null",
-      Operation: "test",
-      Maschine: "test",
-      Spindel: "test",
-      Auftragsnummer: "test",
-      Wechselgrund: "test",
-      Restwert: 0,
-      AngelegtVon: "test",
-      ErledigtVon: "test",
-      VerschleissID: 0,
-      Vermessen: false,
-      Neu: false,
-      Werkzeug: false,
+    if (!foundUser) throw Error("Bitte registrieren Sie sich am Gühring Stand");
+
+    //Create first ID if no data records
+    const { count } = await Order.findAndCountAll({
+      where: {
+        ID: 1,
+      },
     });
-    res.json(order);
+
+    if (count === 0) {
+      //if no number records of id 1
+      const order = await Order.create({
+        ID: 1,
+        Stueckliste: product,
+        Menge: qty,
+        Wechselstatus: "WWS01",
+        AngelegtVon: user,
+        Stuecklistenvariante: "",
+        Bauteil: "",
+        Bauteilvariante: "",
+        Operation: "",
+        Maschine: "",
+        Spindel: "",
+        Auftragsnummer: "",
+        Wechselgrund: "",
+        Restwert: 0,
+        ErledigtVon: "",
+        VerschleissID: 0,
+        Vermessen: false,
+        Neu: false,
+        Werkzeug: false,
+        Bemerkung: "",
+      });
+      res.json(order);
+    } else {
+      //if id 1 exists, find last ID
+      const { ID } = await Order.findOne({
+        limit: 1,
+        order: [["ID", "DESC"]],
+      });
+
+      const order = await Order.create({
+        ID: ID + 1, //auto increment
+        Stueckliste: product,
+        Menge: qty,
+        Wechselstatus: "WWS01",
+        AngelegtVon: user,
+        Stuecklistenvariante: "",
+        Bauteil: "",
+        Bauteilvariante: "",
+        Operation: "",
+        Maschine: "",
+        Spindel: "",
+        Auftragsnummer: "",
+        Wechselgrund: "",
+        Restwert: 0,
+        ErledigtVon: "",
+        VerschleissID: 0,
+        Vermessen: false,
+        Neu: false,
+        Werkzeug: false,
+        Bemerkung: "",
+      });
+      res.json(order);
+    }
   } catch (error) {
     console.log(error.stack);
     res.status(500).json({ error: error.message });
@@ -47,21 +106,28 @@ router.post("/", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    const updateOrder = await Order.update(
+    const {
+      params: { id },
+    } = req;
+    const [updateOrder] = await Order.update(
+      //why array updateOrder to work?
       {
         Wechselstatus: req.body.statusNew,
       },
       {
         where: {
-          ID: req.params.id,
-          Stueckliste: req.body.stueckliste,
-          Menge: req.body.qty,
-          Wechselstatus: req.body.status,
-          Bemerkung: req.body.name,
+          ID: id,
         },
       }
     );
-    console.log(updateOrder);
+    const result = await Order.findOne({ where: { ID: id } });
+    res.json(
+      updateOrder
+        ? res.json(result)
+        : {
+            error: `Order with id of ${id} doesn't exist. No rows affected`,
+          }
+    );
   } catch (error) {
     console.log(error.stack);
     res.status(500).json({ error: error.message });
@@ -70,26 +136,44 @@ router.put("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
+    const {
+      params: { id },
+    } = req;
     const deleteOrder = await Order.destroy({
       where: {
-        ID: req.params.id,
+        ID: id,
       },
     });
+    res.json(
+      deleteOrder
+        ? { success: `Order with id of ${id} was deleted` }
+        : {
+            error: `Order with id of ${id} doesn't exist. No rows affected`,
+          }
+    );
   } catch (error) {
     console.log(error.stack);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.get("/", async (req, res) => {
+//delete all orders
+/* router.delete("/", async (req, res) => {
   try {
-    const results = await Order.findAll({
-      attributes: ["ID", "Stueckliste", "Menge", "Wechselstatus", "Bemerkung"],
+    const deleteAllOrders = await Order.destroy({
+      truncate: true,
     });
-    res.json(results);
+    res.json(
+      deleteAllOrders
+        ? { success: `All orders were deleted` }
+        : {
+            error: `No orders exist. No rows affected`,
+          }
+    );
   } catch (error) {
+    console.log(error.stack);
     res.status(500).json({ error: error.message });
   }
-});
+}); */
 
 module.exports = router;

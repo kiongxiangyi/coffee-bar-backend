@@ -30,7 +30,6 @@ const User = sequelize.define(
   },
   {
     tableName: "tblBenutzer",
-    id: false,
     createdAt: false,
     updatedAt: false,
   }
