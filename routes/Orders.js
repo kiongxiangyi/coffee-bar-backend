@@ -24,16 +24,16 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res, next) => {
   try {
     const {
-      body: { user, product, qty },
+      body: { user, orderItems },
     } = req;
     if (!user) return next(new Error("Bitte Namen eingeben")); //check user input
-    if (!product) return next(new Error("Bitte Kaffee auswählen")); //check coffee selection input
-    if (!qty) return next(new Error("Bitte Mengen eingeben")); //check quantity input
+    if (!orderItems.length)
+      return next(new Error("Please select at least 1 drink")); //check coffee selection input
     //check if user is in database registered
     const foundUser = await User.findOne({
       where: { Benutzer: user },
     });
-    if (!foundUser) throw Error("Bitte registrieren Sie sich am Gühring Stand");
+    if (!foundUser) next(new Error("Please register your name first"));
 
     //Create first ID if no data records
     const { count } = await Order.findAndCountAll({
@@ -44,59 +44,62 @@ router.post("/", async (req, res, next) => {
 
     if (count === 0) {
       //if no number records of id 1
-      const order = await Order.create({
-        ID: 1,
-        Stueckliste: product,
-        Menge: qty,
-        Wechselstatus: "WWS01",
-        AngelegtVon: user,
-        Stuecklistenvariante: "",
-        Bauteil: "",
-        Bauteilvariante: "",
-        Operation: "",
-        Maschine: "",
-        Spindel: "",
-        Auftragsnummer: "",
-        Wechselgrund: "",
-        Restwert: 0,
-        ErledigtVon: "",
-        VerschleissID: 0,
-        Vermessen: false,
-        Neu: false,
-        Werkzeug: false,
-        Bemerkung: "",
-      });
-      res.json(order);
+      const orders = await Order.bulkCreate(
+        orderItems.map((order, i) => ({
+          ID: i + 1,
+          Stueckliste: order.Stueckliste,
+          Menge: order.qty,
+          Wechselstatus: "WWS01",
+          AngelegtVon: user,
+          Stuecklistenvariante: "",
+          Bauteil: "",
+          Bauteilvariante: "",
+          Operation: "",
+          Maschine: "",
+          Spindel: "",
+          Auftragsnummer: "",
+          Wechselgrund: "",
+          Restwert: 0,
+          ErledigtVon: "",
+          VerschleissID: 0,
+          Vermessen: false,
+          Neu: false,
+          Werkzeug: false,
+          Bemerkung: "",
+        }))
+      );
+      res.json(orders);
     } else {
       //if id 1 exists, find last ID
       const { ID } = await Order.findOne({
         limit: 1,
         order: [["ID", "DESC"]],
       });
-
-      const order = await Order.create({
-        ID: ID + 1, //auto increment
-        Stueckliste: product,
-        Menge: qty,
-        Wechselstatus: "WWS01",
-        AngelegtVon: user,
-        Stuecklistenvariante: "",
-        Bauteil: "",
-        Bauteilvariante: "",
-        Operation: "",
-        Maschine: "",
-        Spindel: "",
-        Auftragsnummer: "",
-        Wechselgrund: "",
-        Restwert: 0,
-        ErledigtVon: "",
-        VerschleissID: 0,
-        Vermessen: false,
-        Neu: false,
-        Werkzeug: false,
-        Bemerkung: "",
-      });
-      res.json(order);
+      const orders = await Order.bulkCreate(
+        orderItems.map((order, i) => ({
+          ID: ID + 1 + i,
+          Stueckliste: order.Stueckliste,
+          Menge: order.qty,
+          Wechselstatus: "WWS01",
+          AngelegtVon: user,
+          Stuecklistenvariante: "",
+          Bauteil: "",
+          Bauteilvariante: "",
+          Operation: "",
+          Maschine: "",
+          Spindel: "",
+          Auftragsnummer: "",
+          Wechselgrund: "",
+          Restwert: 0,
+          ErledigtVon: "",
+          VerschleissID: 0,
+          Vermessen: false,
+          Neu: false,
+          Werkzeug: false,
+          Bemerkung: "",
+        }))
+      );
+      res.json(orders);
     }
   } catch (error) {
     console.log(error.stack);
@@ -108,11 +111,12 @@ router.put("/:id", async (req, res) => {
   try {
     const {
       params: { id },
+      body: { status },
     } = req;
     const [updateOrder] = await Order.update(
       //why array updateOrder to work?
       {
-        Wechselstatus: req.body.statusNew,
+        Wechselstatus: status,
       },
       {
         where: {
@@ -123,7 +127,7 @@ router.put("/:id", async (req, res) => {
     const result = await Order.findOne({ where: { ID: id } });
     res.json(
       updateOrder
-        ? res.json(result)
+        ? result
         : {
             error: `Order with id of ${id} doesn't exist. No rows affected`,
           }

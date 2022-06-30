@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
-("use strict");
-const nodemailer = require("nodemailer");
 const User = require("../models/User");
 const Order = require("../models/Order");
+// nodemailer
+("use strict");
+const nodemailer = require("nodemailer");
 
 router.post("/:id", async (req, res) => {
   try {
