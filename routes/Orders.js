@@ -13,6 +13,8 @@ router.get("/", async (req, res) => {
         "Menge",
         "Wechselstatus",
         "AngelegtVon",
+        "AngelegtAm",
+        "ErledigtAm",
       ],
     });
     res.json(results);
@@ -125,6 +127,7 @@ router.put("/:id", async (req, res) => {
       }
     );
     const result = await Order.findOne({ where: { ID: id } });
+    //console.log(result);
     res.json(
       updateOrder
         ? result
