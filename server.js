@@ -1,7 +1,11 @@
 require("dotenv").config();
+const { DateTime } = require("luxon");
 const express = require("express");
 const PORT = process.env.PORT;
 const cors = require("cors");
+const deliverDrinks = require("./utils/utils");
+
+setInterval(deliverDrinks, 3000);
 
 const app = express();
 
@@ -14,8 +18,6 @@ app.use(cors());
 app.use("/drinks", require("./routes/products"));
 // Orders route
 app.use("/orders", require("./routes/orders"));
-// Sent Email
-app.use("/send", require("./routes/emails"));
 
 // Error middleware
 app.use((err, req, res, next) => {

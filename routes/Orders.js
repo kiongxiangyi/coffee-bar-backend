@@ -115,6 +115,7 @@ router.put("/:id", async (req, res) => {
       params: { id },
       body: { status },
     } = req;
+
     const [updateOrder] = await Order.update(
       //why array updateOrder to work?
       {
@@ -127,7 +128,6 @@ router.put("/:id", async (req, res) => {
       }
     );
     const result = await Order.findOne({ where: { ID: id } });
-    //console.log(result);
     res.json(
       updateOrder
         ? result
@@ -163,24 +163,5 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-//delete all orders
-/* router.delete("/", async (req, res) => {
-  try {
-    const deleteAllOrders = await Order.destroy({
-      truncate: true,
-    });
-    res.json(
-      deleteAllOrders
-        ? { success: `All orders were deleted` }
-        : {
-            error: `No orders exist. No rows affected`,
-          }
-    );
-  } catch (error) {
-    console.log(error.stack);
-    res.status(500).json({ error: error.message });
-  }
-}); */
 
 module.exports = router;
