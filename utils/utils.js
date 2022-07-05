@@ -7,14 +7,15 @@ const nodemailer = require("nodemailer");
 const deliverDrinks = async () => {
   try {
     const ordersToDeliver = await Order.findAll({
-      attributes: ["ID", "Stueckliste", "Wechselstatus", "AngelegtVon"],
+      attributes: [
+        "ID",
+        "Stueckliste",
+        "Wechselstatus",
+        "AngelegtVon",
+        "AngelegtAm",
+      ],
       where: { Wechselstatus: "WWS03" },
     });
-    //do not need extra array for pushing user email
-    /*  const usersEmail = []; */
-    /*     usersEmail.push(user.Email); //get the email of the user and push to users arrray
-    }
-    for await (const user of usersEmail) { */
 
     for await (const order of ordersToDeliver) {
       const user = await User.findOne({
@@ -22,8 +23,8 @@ const deliverDrinks = async () => {
         where: { Benutzer: order.AngelegtVon },
       });
 
-      const output = `<p>Hallo, ${order.AngelegtVon}</p>
-        <p>Ihre Bestellung ${order.Stueckliste} steht bereit.<p>
+      const output = `<p>Hallo ${order.AngelegtVon},</p>
+        <p>Ihre Bestellung "${order.Stueckliste}" am "${order.AngelegtAm}" steht bereit.<p>
         <p>Vielen Dank.<p>
         <p>Mit freundlichen Grüßen<p>
         <p>Gühring AMB Kafeebar<p>`;
@@ -33,10 +34,10 @@ const deliverDrinks = async () => {
         host: "mail.guehring.de",
         port: 25,
         secure: false, // true for 465, false for other ports
-        /* auth: {
-            user: "", // generated user
-            pass: "", // generated password
-          }, */
+        auth: {
+          user: process.env.SMTPUSER, // generated user
+          pass: process.env.SMTPPASSWORD, // generated password
+        },
       });
 
       // send mail with defined transport object
@@ -47,7 +48,7 @@ const deliverDrinks = async () => {
         html: output, // html body
       });
 
-      //Update order status
+      //Update order status from finished to pickup
       await Order.update(
         { Wechselstatus: "WWS06" },
         {

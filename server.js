@@ -5,7 +5,7 @@ const PORT = process.env.PORT;
 const cors = require("cors");
 const deliverDrinks = require("./utils/utils");
 
-setInterval(deliverDrinks, 3000);
+setInterval(deliverDrinks, 5000);
 
 const app = express();
 
@@ -18,6 +18,8 @@ app.use(cors());
 app.use("/drinks", require("./routes/products"));
 // Orders route
 app.use("/orders", require("./routes/orders"));
+// Users route
+app.use("/users", require("./routes/users"));
 
 // Error middleware
 app.use((err, req, res, next) => {
