@@ -15,6 +15,7 @@ router.get("/", async (req, res) => {
         "AngelegtVon",
         "AngelegtAm",
         "ErledigtAm",
+        "Bemerkung"
       ],
     });
     res.json(results);
@@ -26,16 +27,16 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res, next) => {
   try {
     const {
-      body: { user, orderItems },
+      body: { user, orderItems, table },
     } = req;
     if (!user) return next(new Error("Bitte Namen eingeben")); //check user input
-    if (!orderItems.length)
-      return next(new Error("Please select at least 1 drink")); //check coffee selection input
+    if (!orderItems.length) return next(new Error("Bitte Produkte auswählen")); //check coffee selection input
     //check if user is in database registered
     const foundUser = await User.findOne({
       where: { Benutzer: user },
     });
-    if (!foundUser) next(new Error("Please register your name first"));
+    if (!foundUser)
+      next(new Error("Bitte Ihren Namen am Gühring Stand registrieren"));
 
     //Create first ID if no data records
     const { count } = await Order.findAndCountAll({
@@ -67,7 +68,7 @@ router.post("/", async (req, res, next) => {
           Vermessen: false,
           Neu: false,
           Werkzeug: false,
-          Bemerkung: "",
+          Bemerkung: table,
         }))
       );
       res.json(orders);
@@ -98,7 +99,7 @@ router.post("/", async (req, res, next) => {
           Vermessen: false,
           Neu: false,
           Werkzeug: false,
-          Bemerkung: "",
+          Bemerkung: table,
         }))
       );
       res.json(orders);
