@@ -26,11 +26,12 @@ app.use((err, req, res, next) => {
   console.log(err.stack);
   return res.status(500).json({ error: err.message });
 });
+
+/* app.get("/", (req, res) => {
+  res.send("Test");
+}); */
+
 // Error
 app.use("*", (req, res) => res.sendStatus(404)); // the server could not find what was requested
-
-app.get("", (req, res) => {
-  res.send("Hello World");
-});
 
 app.listen(PORT, console.log(`Server started on port ${PORT}`));
