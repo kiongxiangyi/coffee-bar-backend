@@ -6,6 +6,7 @@ const sequelize = new Sequelize(
   {
     host: process.env.HOST,
     dialect: process.env.DIALECT,
+    instanceName: process.env.SERVER,
   }
 );
 
