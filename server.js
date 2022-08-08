@@ -27,9 +27,9 @@ app.use((err, req, res, next) => {
   return res.status(500).json({ error: err.message });
 });
 
-/* app.get("/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("Test");
-}); */
+});
 
 // Error
 app.use("*", (req, res) => res.sendStatus(404)); // the server could not find what was requested
