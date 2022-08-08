@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { DateTime } = require("luxon");
 const express = require("express");
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 const cors = require("cors");
 const deliverDrinks = require("./utils/utils");
 
@@ -28,5 +28,9 @@ app.use((err, req, res, next) => {
 });
 // Error
 app.use("*", (req, res) => res.sendStatus(404)); // the server could not find what was requested
+
+app.get("", (req, res) => {
+  res.send("Hello World");
+});
 
 app.listen(PORT, console.log(`Server started on port ${PORT}`));
