@@ -15,7 +15,8 @@ router.get("/", async (req, res) => {
         "AngelegtVon",
         "AngelegtAm",
         "ErledigtAm",
-        "Bemerkung"
+        "Bemerkung", //table
+        "Machine", //language
       ],
     });
     res.json(results);
@@ -27,7 +28,7 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res, next) => {
   try {
     const {
-      body: { user, orderItems, table },
+      body: { user, orderItems, table, locale },
     } = req;
     if (!user) return next(new Error("Bitte Namen eingeben")); //check user input
     if (!orderItems.length) return next(new Error("Bitte Produkte auswählen")); //check coffee selection input
@@ -58,7 +59,7 @@ router.post("/", async (req, res, next) => {
           Bauteil: "",
           Bauteilvariante: "",
           Operation: "",
-          Maschine: "",
+          Maschine: locale,
           Spindel: "",
           Auftragsnummer: "",
           Wechselgrund: "",
@@ -89,7 +90,7 @@ router.post("/", async (req, res, next) => {
           Bauteil: "",
           Bauteilvariante: "",
           Operation: "",
-          Maschine: "",
+          Maschine: locale,
           Spindel: "",
           Auftragsnummer: "",
           Wechselgrund: "",
