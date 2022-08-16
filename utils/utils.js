@@ -4,6 +4,7 @@ const User = require("../models/User"); //user db
 // nodemailer
 //("use strict");
 const nodemailer = require("nodemailer");
+const { DateTime } = require("luxon");
 
 const deliverDrinks = async () => {
   try {
@@ -27,7 +28,12 @@ const deliverDrinks = async () => {
 
       if (order.Maschine === "de") {
         const output = `<p>Hallo ${order.AngelegtVon},</p>
-        <p>Ihre Bestellung "${order.Stueckliste}" am "${order.AngelegtAm}" steht bereit.<p>
+        <p>Ihre Bestellung "${order.Stueckliste}" am 
+        ${new Date(order.AngelegtAm).toLocaleString(
+          "de-DE",
+          DateTime.DATETIME_SHORT //Luxon DateTime
+        )} 
+        steht bereit.<p>
         <p>Vielen Dank für Ihre Bestellung und einen schönen Tag noch.<p>
         <p>Mit freundlichen Grüßen<p>
         <p>Gühring AMB Kafeebar<p>`;
@@ -60,7 +66,7 @@ const deliverDrinks = async () => {
         );
       } else {
         const output = `<p>Dear ${order.AngelegtVon},</p>
-      <p>Your order "${order.Stueckliste}" at "${order.AngelegtAm}" is ready.<p>
+      <p>Your order "${order.Stueckliste}" at ${order.AngelegtAm} is ready.<p>
       <p>Thank you for your order and have a nice day.<p>
       <p>Best regards,<p>
       <p>Gühring AMB Coffee Bar<p>`;

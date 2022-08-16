@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
         "AngelegtAm",
         "ErledigtAm",
         "Bemerkung", //table
-        "Machine", //language
+        "Maschine", //language
       ],
     });
     res.json(results);
@@ -30,19 +30,20 @@ router.post("/", async (req, res, next) => {
     const {
       body: { user, orderItems, table, locale },
     } = req;
-    if (!user) return next(new Error("Bitte Namen eingeben")); //check user input
+    if (!user) return next(new Error("Bitte PIN eingeben")); //check user input
     if (!orderItems.length) return next(new Error("Bitte Produkte auswählen")); //check coffee selection input
     //check if user is in database registered
     const foundUser = await User.findOne({
-      where: { Benutzer: user },
+      where: { Pin: user },
     });
+    console.log(user)
     if (!foundUser)
-      next(new Error("Bitte Ihren Namen am Gühring Stand registrieren"));
+      next(new Error("Ihre PIN ist nicht gültig. Bitte am Gühring Stand registrieren."));
 
     //Create first ID if no data records
     const { count } = await Order.findAndCountAll({
       where: {
-        ID: 1,
+        ID: 100001,
       },
     });
 
@@ -50,7 +51,7 @@ router.post("/", async (req, res, next) => {
       //if no number records of id 1
       const orders = await Order.bulkCreate(
         orderItems.map((order, i) => ({
-          ID: i + 1,
+          ID: i + 100001,
           Stueckliste: order.Stueckliste,
           Menge: order.qty,
           Wechselstatus: "WWS01",
@@ -81,7 +82,7 @@ router.post("/", async (req, res, next) => {
       });
       const orders = await Order.bulkCreate(
         orderItems.map((order, i) => ({
-          ID: ID + 1 + i,
+          ID: ID + i + 1,
           Stueckliste: order.Stueckliste,
           Menge: order.qty,
           Wechselstatus: "WWS01",
