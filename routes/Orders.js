@@ -36,7 +36,7 @@ router.post("/", async (req, res, next) => {
     const foundUser = await User.findOne({
       where: { Pin: user },
     });
-    console.log(user)
+    //console.log(user)
     if (!foundUser)
       next(new Error("Ihre PIN ist nicht gültig. Bitte am Gühring Stand registrieren."));
 
