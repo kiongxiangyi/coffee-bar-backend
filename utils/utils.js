@@ -33,8 +33,7 @@ const deliverDrinks = async () => {
             where: { Wechselstatus: "WWS03" },
           }
         );
-      } else 
-      {
+      } else {
         if (order.Maschine === "de") {
           const output = `<p>Guten Tag,</p>
         <p>Ihre Bestellung "${order.Stueckliste}" am 
@@ -43,7 +42,8 @@ const deliverDrinks = async () => {
           DateTime.DATETIME_SHORT //Luxon DateTime
         )} 
         steht bereit.<p>
-        <p>Vielen Dank für Ihre Bestellung und einen schönen Tag noch.<p>
+        <p>Vielen Dank für Ihre Bestellung.<p>
+        <p>Wir wünschen Ihnen einen schönen Tag noch.<p>
         <p>Mit freundlichen Grüßen<p>
         <p>Gühring AMB Kafeebar<p>`;
 
@@ -76,7 +76,8 @@ const deliverDrinks = async () => {
         } else {
           const output = `<p>Hello,</p>
       <p>Your order "${order.Stueckliste}" at ${order.AngelegtAm} is ready.<p>
-      <p>Thank you for your order and have a nice day.<p>
+      <p>Thank you for your order.<p>
+      <p>We wish you have a nice day too.<p>
       <p>Best regards,<p>
       <p>Gühring AMB Coffee Bar<p>`;
 
