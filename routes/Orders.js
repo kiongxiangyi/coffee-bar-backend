@@ -47,6 +47,8 @@ router.post("/", async (req, res, next) => {
       },
     });
 
+    
+
     if (count === 0) {
       //if no number records of id 1
       const orders = await Order.bulkCreate(
