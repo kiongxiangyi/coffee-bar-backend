@@ -18,6 +18,7 @@ router.get("/", async (req, res) => {
         "Bemerkung", //table
         "Maschine", //language
         "Auftragsnummer", //Bestellnummer
+        "Operation", //right or left coffee maker position ->"r" or "l"
       ],
     });
     res.json(results);
@@ -55,6 +56,7 @@ router.post("/", async (req, res, next) => {
     //initial ID and order number
     let validatedID = 0;
     let validatedAuftragsnummer = 100001;
+    let validatedOperation = "r";
     //if ID exists
     if (count > 0) {
       //find last ID
@@ -63,7 +65,6 @@ router.post("/", async (req, res, next) => {
         order: [["ID", "DESC"]],
       });
       validatedID = ID; //replace initial ID
-      console.log(validatedID);
       //find last order number
       const { Auftragsnummer } = await Order.findOne({
         limit: 1,
@@ -71,8 +72,17 @@ router.post("/", async (req, res, next) => {
       });
       validatedAuftragsnummer = Auftragsnummer; //replace initial order number
       validatedAuftragsnummer++; //increase order number by 1 for next order
+      //find the operation field of the last ID
+      const { Operation } = await Order.findOne({
+        limit: 1,
+        order: [["ID", "DESC"]],
+      });
+      if (Operation === "r") {
+        validatedOperation = "l";
+      } else {
+        validatedOperation = "r";
+      }
     }
-
     const orderItemsQty1 = []; //new array for orders only with qty 1
     orderItems.forEach((item) => {
       //loop according to qty and create new array for each order with qty 1
@@ -83,7 +93,13 @@ router.post("/", async (req, res, next) => {
           Dokument1: item.Dokument1,
           qty: 1,
           Bestellnummer: validatedAuftragsnummer,
+          rightLeftCoffeeMakerPosition: validatedOperation,
         };
+        if (validatedOperation === "r") {
+          validatedOperation = "l";
+        } else {
+          validatedOperation = "r";
+        }
         orderItemsQty1.push(newItem);
       }
     });
@@ -99,7 +115,7 @@ router.post("/", async (req, res, next) => {
         Stuecklistenvariante: "",
         Bauteil: "",
         Bauteilvariante: "",
-        Operation: "",
+        Operation: order.rightLeftCoffeeMakerPosition,
         Maschine: locale,
         Spindel: "",
         Auftragsnummer: order.Bestellnummer,
