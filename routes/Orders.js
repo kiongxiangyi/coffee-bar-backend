@@ -77,6 +77,7 @@ router.post("/", async (req, res, next) => {
         limit: 1,
         order: [["ID", "DESC"]],
       });
+      //change the r and l based on last ID operation field
       if (Operation === "r") {
         validatedOperation = "l";
       } else {
@@ -95,6 +96,7 @@ router.post("/", async (req, res, next) => {
           Bestellnummer: validatedAuftragsnummer,
           rightLeftCoffeeMakerPosition: validatedOperation,
         };
+        //change the r and l after each rebase order with qty 1
         if (validatedOperation === "r") {
           validatedOperation = "l";
         } else {
