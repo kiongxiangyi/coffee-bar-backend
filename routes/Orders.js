@@ -17,6 +17,7 @@ router.get("/", async (req, res) => {
         "ErledigtAm",
         "Bemerkung", //table
         "Maschine", //language
+        "Auftragsnummer", //Bestellnummer
       ],
     });
     res.json(results);
@@ -38,24 +39,89 @@ router.post("/", async (req, res, next) => {
     });
     //console.log(user)
     if (!foundUser)
-      next(new Error("Ihre PIN ist nicht gültig. Bitte am Gühring Stand registrieren."));
+      next(
+        new Error(
+          "Ihre PIN ist nicht gültig. Bitte am Gühring Stand registrieren."
+        )
+      );
 
-    //Create first ID if no data records
+    //Find if there is ID 1 -> purpose: create first ID if no data records later
     const { count } = await Order.findAndCountAll({
       where: {
-        ID: 100001,
+        ID: 1,
       },
     });
 
-    
+    //initial ID and order number
+    let validatedID = 0;
+    let validatedAuftragsnummer = 100001;
+    //if ID exists
+    if (count > 0) {
+      //find last ID
+      const { ID } = await Order.findOne({
+        limit: 1,
+        order: [["ID", "DESC"]],
+      });
+      validatedID = ID; //replace initial ID
+      console.log(validatedID);
+      //find last order number
+      const { Auftragsnummer } = await Order.findOne({
+        limit: 1,
+        order: [["Auftragsnummer", "DESC"]],
+      });
+      validatedAuftragsnummer = Auftragsnummer; //replace initial order number
+      validatedAuftragsnummer++; //increase order number by 1 for next order
+    }
 
-    if (count === 0) {
-      //if no number records of id 1
+    const orderItemsQty1 = []; //new array for orders only with qty 1
+    orderItems.forEach((item) => {
+      //loop according to qty and create new array for each order with qty 1
+      for (let i = 0; i < item.qty; i++) {
+        const newItem = {
+          ID: item.ID,
+          Stueckliste: item.Stueckliste,
+          Dokument1: item.Dokument1,
+          qty: 1,
+          Bestellnummer: validatedAuftragsnummer,
+        };
+        orderItemsQty1.push(newItem);
+      }
+    });
+
+    //if no number records of id 1
+    const orders = await Order.bulkCreate(
+      orderItemsQty1.map((order) => ({
+        ID: ++validatedID, //increase the ID first and return
+        Stueckliste: order.Stueckliste,
+        Menge: 1,
+        Wechselstatus: "WWS01",
+        AngelegtVon: user,
+        Stuecklistenvariante: "",
+        Bauteil: "",
+        Bauteilvariante: "",
+        Operation: "",
+        Maschine: locale,
+        Spindel: "",
+        Auftragsnummer: order.Bestellnummer,
+        Wechselgrund: "",
+        Restwert: 0,
+        ErledigtVon: "",
+        VerschleissID: 0,
+        Vermessen: false,
+        Neu: false,
+        Werkzeug: false,
+        Bemerkung: table,
+      }))
+    );
+    res.json(orders);
+
+    /* else {
+    
       const orders = await Order.bulkCreate(
-        orderItems.map((order, i) => ({
-          ID: i + 100001,
+        orderItemsQty1.map((order, i) => ({
+          ID: ID + i + 1,
           Stueckliste: order.Stueckliste,
-          Menge: order.qty,
+          Menge: 1,
           Wechselstatus: "WWS01",
           AngelegtVon: user,
           Stuecklistenvariante: "",
@@ -64,7 +130,36 @@ router.post("/", async (req, res, next) => {
           Operation: "",
           Maschine: locale,
           Spindel: "",
-          Auftragsnummer: "",
+          Auftragsnummer: order.Bestellnummer,
+          Wechselgrund: "",
+          Restwert: 0,
+          ErledigtVon: "",
+          VerschleissID: 0,
+          Vermessen: false,
+          Neu: false,
+          Werkzeug: false,
+          Bemerkung: table,
+        }))
+      );
+      res.json(orders);
+    } */
+
+    /* if (count === 0) {
+      //if no number records of id 1
+      const orders = await Order.bulkCreate(
+        orderItems.map((order, i) => ({
+          ID: 1,
+          Stueckliste: order.Stueckliste,
+          Menge: 1,
+          Wechselstatus: "WWS01",
+          AngelegtVon: user,
+          Stuecklistenvariante: "",
+          Bauteil: "",
+          Bauteilvariante: "",
+          Operation: "",
+          Maschine: locale,
+          Spindel: "",
+          Auftragsnummer: 100001,
           Wechselgrund: "",
           Restwert: 0,
           ErledigtVon: "",
@@ -86,7 +181,7 @@ router.post("/", async (req, res, next) => {
         orderItems.map((order, i) => ({
           ID: ID + i + 1,
           Stueckliste: order.Stueckliste,
-          Menge: order.qty,
+          Menge: 1,
           Wechselstatus: "WWS01",
           AngelegtVon: user,
           Stuecklistenvariante: "",
@@ -95,7 +190,7 @@ router.post("/", async (req, res, next) => {
           Operation: "",
           Maschine: locale,
           Spindel: "",
-          Auftragsnummer: "",
+          Auftragsnummer: ID + i + 100001,
           Wechselgrund: "",
           Restwert: 0,
           ErledigtVon: "",
@@ -107,7 +202,7 @@ router.post("/", async (req, res, next) => {
         }))
       );
       res.json(orders);
-    }
+    } */
   } catch (error) {
     console.log(error.stack);
     res.status(500).json({ error: error.message });
