@@ -10,7 +10,7 @@ Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
 const Order = sequelize.define(
   "Order",
   {
-    ID: { type: Sequelize.INTEGER },
+    ID: { type: Sequelize.INTEGER, primaryKey: true },
     Stueckliste: { type: Sequelize.STRING },
     Stuecklistenvariante: { type: Sequelize.STRING },
     Bauteil: { type: Sequelize.STRING },

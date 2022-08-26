@@ -7,7 +7,7 @@ const deliverDrinks = require("./utils/utils");
 const refreshPickUpList = require("./utils/refreshPickUpList")
 
 setInterval(deliverDrinks, 5000);
-setInterval(refreshPickUpList, 10000);
+setInterval(refreshPickUpList, 2000);
 
 const app = express();
 
