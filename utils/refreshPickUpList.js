@@ -16,40 +16,26 @@ const refreshPickUpList = async () => {
       where: { Wechselstatus: "WWS06" },
     });
 
+    //update finished date when status is ready for pickup WWS06
     const insertFinishedDate = async () => {
       for await (const order of ordersToPickUp) {
-        let date = new Date();
+        let dateNow = new Date();
         if (order.ErledigtAm === null && order.Wechselstatus === "WWS06") {
-          order.ErledigtAm = date;
-          await order.save();
-          //await order.save();
-          /* await Order.update(
-            {
-              ErledigtAm: date,
-            },
-            {
-              where: { Wechselstatus: "WWS06" },
-            }
-          ); */
+          order.ErledigtAm = dateNow; //update the value
+          await order.save(); //save to database
         }
-        console.log(order.ErledigtAm);
       }
     };
+
+    //after specific time, the pickup orders will change status and disappear on monitor
     const pickedUp = async () => {
       for await (const order of ordersToPickUp) {
-        let end = new Date().getTime();
-        let start = new Date(order.ErledigtAm).getTime();
-        let time = end - start;
-        console.log(end);
-        console.log(start);
-        console.log(end - start);
-        if (time > 60000) {
-          await Order.update(
-            { Wechselstatus: "WWS05" },
-            {
-              where: { Wechselstatus: "WWS06" },
-            }
-          );
+        let liveTime = new Date().getTime();
+        let pickupTime = new Date(order.ErledigtAm).getTime();
+        let timeDiff = liveTime - pickupTime;
+        if (timeDiff > 60000) { //time in ms
+          order.Wechselstatus = "WWS05"; //update status
+          await order.save(); //save to database
         }
       }
     };
