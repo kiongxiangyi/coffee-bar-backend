@@ -57,8 +57,6 @@ router.post("/", async (req, res, next) => {
     let validatedID = 0;
     let validatedAuftragsnummer = 100001;
 
-    let validatedOperation = "r";
-
     //if ID exists
     if (count > 0) {
       //find last ID
@@ -74,17 +72,7 @@ router.post("/", async (req, res, next) => {
       });
       validatedAuftragsnummer = Auftragsnummer; //replace initial order number
       validatedAuftragsnummer++; //increase order number by 1 for next order
-      //find the operation field of the last ID
-      const { Operation } = await Order.findOne({
-        limit: 1,
-        order: [["ID", "DESC"]],
-      });
-      //change the r and l based on last ID operation field
-      if (Operation === "r") {
-        validatedOperation = "l";
-      } else {
-        validatedOperation = "r";
-      }
+      
     }
     const orderItemsQty1 = []; //new array for orders only with qty 1
     orderItems.forEach((item) => {
@@ -96,14 +84,8 @@ router.post("/", async (req, res, next) => {
           Dokument1: item.Bemerkung,
           qty: 1,
           Bestellnummer: validatedAuftragsnummer,
-          /* rightLeftCoffeeMakerPosition: validatedOperation, */
         };
-        //change the r and l after each rebase order with qty 1
-        if (validatedOperation === "r") {
-          validatedOperation = "l";
-        } else {
-          validatedOperation = "r";
-        }
+        
         orderItemsQty1.push(newItem);
       }
     });
@@ -119,7 +101,7 @@ router.post("/", async (req, res, next) => {
         Stuecklistenvariante: "",
         Bauteil: "",
         Bauteilvariante: "",
-        Operation: order.validatedOperation,
+        Operation: "",
         Maschine: locale,
         Spindel: "",
         Auftragsnummer: order.Bestellnummer,

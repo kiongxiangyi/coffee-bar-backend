@@ -33,7 +33,7 @@ const refreshPickUpList = async () => {
         let liveTime = new Date().getTime();
         let pickupTime = new Date(order.ErledigtAm).getTime();
         let timeDiff = liveTime - pickupTime;
-        if (timeDiff > 60000) { //time in ms
+        if (timeDiff > 60000) { //disappear after 60s
           order.Wechselstatus = "WWS05"; //update status
           await order.save(); //save to database
         }
