@@ -56,7 +56,9 @@ router.post("/", async (req, res, next) => {
     //initial ID and order number
     let validatedID = 0;
     let validatedAuftragsnummer = 100001;
+
     let validatedOperation = "r";
+
     //if ID exists
     if (count > 0) {
       //find last ID
@@ -91,10 +93,10 @@ router.post("/", async (req, res, next) => {
         const newItem = {
           ID: item.ID,
           Stueckliste: item.Stueckliste,
-          Dokument1: item.Dokument1,
+          Dokument1: item.Bemerkung,
           qty: 1,
           Bestellnummer: validatedAuftragsnummer,
-          rightLeftCoffeeMakerPosition: validatedOperation,
+          /* rightLeftCoffeeMakerPosition: validatedOperation, */
         };
         //change the r and l after each rebase order with qty 1
         if (validatedOperation === "r") {
@@ -117,7 +119,7 @@ router.post("/", async (req, res, next) => {
         Stuecklistenvariante: "",
         Bauteil: "",
         Bauteilvariante: "",
-        Operation: order.rightLeftCoffeeMakerPosition,
+        Operation: order.validatedOperation,
         Maschine: locale,
         Spindel: "",
         Auftragsnummer: order.Bestellnummer,
@@ -231,13 +233,14 @@ router.put("/:id", async (req, res) => {
   try {
     const {
       params: { id },
-      body: { status },
+      body: { status, coffeeMakerDirection },
     } = req;
 
     const [updateOrder] = await Order.update(
       //why array updateOrder to work?
       {
         Wechselstatus: status,
+        Operation: coffeeMakerDirection,
       },
       {
         where: {
