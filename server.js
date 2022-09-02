@@ -1,11 +1,13 @@
 require("dotenv").config();
 const { DateTime } = require("luxon");
 const express = require("express");
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 const cors = require("cors");
 const deliverDrinks = require("./utils/utils");
+const refreshPickUpList = require("./utils/refreshPickUpList")
 
 setInterval(deliverDrinks, 5000);
+setInterval(refreshPickUpList, 2000);
 
 const app = express();
 
@@ -26,6 +28,7 @@ app.use((err, req, res, next) => {
   console.log(err.stack);
   return res.status(500).json({ error: err.message });
 });
+
 // Error
 app.use("*", (req, res) => res.sendStatus(404)); // the server could not find what was requested
 

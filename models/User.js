@@ -4,7 +4,7 @@ const sequelize = require("../config/database");
 const User = sequelize.define(
   "User",
   {
-    ID: { type: Sequelize.INTEGER },
+    ID: { type: Sequelize.INTEGER, primaryKey: true },
     Benutzer: { type: Sequelize.STRING },
     ActiveDirectoryName: { type: Sequelize.STRING },
     Personalnummer: { type: Sequelize.STRING },

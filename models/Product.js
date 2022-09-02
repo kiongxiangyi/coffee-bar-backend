@@ -4,7 +4,7 @@ const sequelize = require("../config/database");
 const Product = sequelize.define(
   "Product",
   {
-    ID: { type: Sequelize.INTEGER },
+    ID: { type: Sequelize.INTEGER, primaryKey: true },
     Stueckliste: { type: Sequelize.STRING },
     Stuecklistenvariante: { type: Sequelize.STRING },
     Stuecklistennummer: { type: Sequelize.STRING },
