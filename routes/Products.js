@@ -5,7 +5,7 @@ const Product = require("../models/Product");
 router.get("/", async (req, res) => {
   try {
     const results = await Product.findAll({
-      attributes: ["ID", "Stueckliste", "Stuecklistentyp"],
+      attributes: ["ID", "Stueckliste", "Stuecklistentyp", "Bemerkung"],
       where: {
         Stuecklistentyp: "Kaffeemaschine",
       },
