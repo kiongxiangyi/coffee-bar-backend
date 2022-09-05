@@ -32,7 +32,7 @@ router.post("/", async (req, res, next) => {
     const {
       body: { user, orderItems, table, locale },
     } = req;
-    if (!user) return next(new Error("Bitte PIN eingeben")); //check user input
+    /* if (!user) return next(new Error("Bitte PIN eingeben")); //check user input
     if (!orderItems.length) return next(new Error("Bitte Produkte auswählen")); //check coffee selection input
     //check if user is in database registered
     const foundUser = await User.findOne({
@@ -44,7 +44,7 @@ router.post("/", async (req, res, next) => {
         new Error(
           "Ihre PIN ist nicht gültig. Bitte am Gühring Stand registrieren."
         )
-      );
+      );  */
 
     //Find if there is ID 1 -> purpose: create first ID if no data records later
     const { count } = await Order.findAndCountAll({
