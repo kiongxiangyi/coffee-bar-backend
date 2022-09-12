@@ -5,9 +5,10 @@ const PORT = process.env.PORT || 5000;
 const cors = require("cors");
 const deliverDrinks = require("./utils/utils");
 const refreshPickUpList = require("./utils/refreshPickUpList");
+const refreshUserList = require("./utils/refreshUserList")
 
-setInterval(deliverDrinks, 5000);
-setInterval(refreshPickUpList, 2000);
+//setInterval(deliverDrinks, 5000);
+//setInterval(refreshPickUpList, 2000);
 
 const app = express();
 
